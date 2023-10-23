@@ -34,7 +34,7 @@ namespace TP {
     // Protected member methods
     protected:
     	// Thread-running method
-        inline void one_thread_pre_method(void);
+        void one_thread_pre_method(void);
 
     // Data types definitions for Task class
     public:
@@ -48,7 +48,7 @@ namespace TP {
         Task(const std::string& desc);
 
 
-        inline void send_signal(void);
+        void send_signal(void);
 
         void virtual one_thread_method(void) = 0;
 
@@ -122,13 +122,13 @@ namespace TP {
         bool is_standby(void)  const;
 
     public:
-        inline ThreadPool(int count_of_threads);
+        ThreadPool(int count_of_threads);
 
 
 
         // Template function for adding a task to the queue
         template <typename TaskChild>
-        inline PT::task_id add_task(const TaskChild& task) {
+        PT::task_id add_task(const TaskChild& task) {
             std::lock_guard<std::mutex> lock(m_task_queue_mutex);
             m_task_queue.push(std::make_shared<TaskChild>(task));
 
@@ -145,22 +145,22 @@ namespace TP {
 
         // Waiting for the current task queue to be completely processed or suspended,
         //	returns the id of the task that first signaled and 0 otherwise
-        inline PT::task_id wait_signal(void);
+        PT::task_id wait_signal(void);
 
         // Wait for the current task queue to be fully processed,
         //	ignoring any pause signals
-        inline void wait(void);
+        void wait(void);
 
         // Pause processing
-        inline void stop(void);
+        void stop(void);
 
         // Resumption of processing
-        inline void start(void);
+        void start(void);
 
 
         // Get result by id
         template <typename TaskChild>
-        inline std::shared_ptr<TaskChild> get_result(MT::task_id id) {
+        std::shared_ptr<TaskChild> get_result(MT::task_id id) {
             auto el = m_completed_tasks.find(id);
 
             if (el != m_completed_tasks.end()) {
@@ -172,10 +172,10 @@ namespace TP {
 
 
         // Cleaning completed tasks
-        inline void clear_completed(void);
+        void clear_completed(void);
 
         // Setting the logging flag
-        inline void set_logger_flag(bool flag);
+        void set_logger_flag(bool flag);
 
 
 
