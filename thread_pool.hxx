@@ -122,27 +122,25 @@ namespace TP {
         bool is_standby(void)  const;
 
     public:
-        inline ThreadPool(int count_of_threads) {
-        	//
-        }
+        inline ThreadPool(int count_of_threads);
 
 
 
         // Template function for adding a task to the queue
         template <typename TaskChild>
         inline PT::task_id add_task(const TaskChild& task) {
-            std::lock_guard<std::mutex> lock(task_queue_mutex);
-            task_queue.push(std::make_shared<TaskChild>(task));
+            std::lock_guard<std::mutex> lock(m_task_queue_mutex);
+            m_task_queue.push(std::make_shared<TaskChild>(task));
 
             // assign a unique id to a new task
             // the minimum value of id is 1
-            task_queue.back()->id = ++last_task_id;
+            m_task_queue.back()->m_taskId = ++m_last_task_id;
 
             // associate a task with the current pool
-            task_queue.back()->thread_pool = this;
-            tasks_access.notify_one();
+            m_task_queue.back()->m_threadPool = this;
+            m_tasks_access.notify_one();
 
-            return last_task_id;
+            return m_last_task_id;
         }
 
         // Waiting for the current task queue to be completely processed or suspended,
@@ -163,10 +161,10 @@ namespace TP {
         // Get result by id
         template <typename TaskChild>
         inline std::shared_ptr<TaskChild> get_result(MT::task_id id) {
-            auto elem = completed_tasks.find(id);
+            auto el = m_completed_tasks.find(id);
 
-            if (elem != completed_tasks.end()) {
-                return std::reinterpret_pointer_cast<TaskChild>(elem->second);
+            if (el != m_completed_tasks.end()) {
+                return std::reinterpret_pointer_cast<TaskChild>(el->second);
             } else {
                 return nullptr;
             }
